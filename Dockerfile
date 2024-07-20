@@ -6,7 +6,7 @@ RUN mkdir /application/config
 COPY ./requirements.txt /application/requirements.txt
 RUN pip install --no-cache-dir -r /application/requirements.txt
 
-COPY .main.py /application
+COPY ./main.py /application/main.py
 COPY ./app /application/app
 
 ENV APP_HOST=0.0.0.0
