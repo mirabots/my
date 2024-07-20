@@ -25,7 +25,7 @@ class ConfigManager:
         args = get_args()
         self.ENV = args.env
 
-        if self.ENV == "dev":
+        if self.ENV != "dev":
             disable_unnecessary_loggers()
 
         self.logger = get_logger(levelDEBUG if self.ENV == "dev" else levelINFO)
