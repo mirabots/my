@@ -94,7 +94,7 @@ async def webhook_notifications_post(
 @get("/webhooks/notifications", status_code=HTTP_200_OK)
 async def webhook_notifications_get(
     secret: str = "", sender: str = "", message: str = ""
-) -> dict[str, str]:
+) -> str:
     if secret != cfg.NOTIFICATIONS_SECRET_GET:
         logger.error("Secrets don't match")
         raise HTTPException(status_code=401, detail="NOT VERIFIED")
@@ -111,7 +111,7 @@ async def webhook_notifications_get(
             chat_id=cfg.OWNER_ID, text=message_text, entities=message_entities
         )
 
-    return {"description": "Got"}
+    return "Notification sended"
 
 
 router = Router(
