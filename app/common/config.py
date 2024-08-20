@@ -183,7 +183,8 @@ class ConfigManager:
         # notifications
         notifications_data = self.secrets_data.get(f"{self.ENV}/notifications")
         try:
-            notifications_data["secret"]
+            notifications_data["secret_post"]
+            notifications_data["secret_get"]
             ALLOWED = notifications_data["allowed"]
             if not isinstance(ALLOWED, list):
                 raise
@@ -228,7 +229,8 @@ class ConfigManager:
 
         # notifications
         notifications_data = self.secrets_data.get(f"{self.ENV}/notifications")
-        self.NOTIFICATIONS_SECRET = notifications_data["secret"]
+        self.NOTIFICATIONS_SECRET_POST = notifications_data["secret_post"]
+        self.NOTIFICATIONS_SECRET_GET = notifications_data["secret_get"]
         self.NOTIFICATIONS_ALLOWED = notifications_data["allowed"]
 
 
