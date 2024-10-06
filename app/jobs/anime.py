@@ -73,7 +73,7 @@ class AnimeJob(JobBase):
                     if last_info[key] == anime_info[key]:
                         info_str = last_info[key]
                     else:
-                        info_str = f"last_info[key] -> {anime_info[key]}"
+                        info_str = f"{last_info[key]} -> {anime_info[key]}"
                     diff_str = ""
                 else:
                     diff_str = "{:,}".format(round(diff, 3)).replace(",", " ")
