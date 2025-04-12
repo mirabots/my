@@ -175,6 +175,7 @@ async def anime_info_handler(
         message_text, message_entities = formatting.Text(*message_info).render()
         abort_keyboard = get_keyboard_abort("anime_i", "End")
         actions_keyboard = get_keyboard_anime_actions(anime_id)
+        actions_keyboard.adjust(2)
         actions_keyboard.attach(abort_keyboard)
 
         await callback.message.edit_text(
@@ -215,7 +216,7 @@ async def anime_update_handler(
             if last_info[key] == anime_info[key]:
                 info_str = last_info[key]
             else:
-                info_str = f"last_info[key] -> {anime_info[key]}"
+                info_str = f"{last_info[key]} -> {anime_info[key]}"
             diff_str = ""
         else:
             diff_str = "{:,}".format(round(diff, 3)).replace(",", " ")
