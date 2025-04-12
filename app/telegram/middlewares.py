@@ -10,23 +10,21 @@ from app.common.config import cfg
 class AuthChatMiddleware(BaseMiddleware):
     async def __call__(
         self,
-        handler: Callable[[types.Message, Dict[str, Any]], Awaitable[Any]],
-        event: types.Message,
+        handler: Callable[
+            [types.Message | types.CallbackQuery, Dict[str, Any]], Awaitable[Any]
+        ],
+        event: types.Message | types.CallbackQuery,
         data: Dict[str, Any],
     ) -> Any:
-        command = event.text.rstrip()
+        command = (
+            getattr(event, "text", "") or getattr(event, "caption", "") or ""
+        ).strip()
         user_id = event.from_user.id
-        user_name = event.from_user.username
-
-        if command == "/start":
-            if user_name.lower() not in cfg.TELEGRAM_ALLOWED:
-                with suppress(TelegramBadRequest, TelegramForbiddenError):
-                    await event.answer("You are not allowed to use this bot")
-                return
-            else:
-                return await handler(event, data)
 
         if user_id != cfg.OWNER_ID:
+            if command.startswith("/start"):
+                with suppress(TelegramBadRequest, TelegramForbiddenError):
+                    await event.answer("You are not allowed to use this bot")
             return
 
         return await handler(event, data)
