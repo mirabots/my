@@ -40,7 +40,7 @@ class AnimeJob(JobBase):
                 )
                 delay = planned_time - current_time
                 interval = delay.seconds
-                if (delay_sd := delay.seconds + delay.days * 60 * 60 * 24) < 10:
+                if 0 < (delay_sd := delay.seconds + delay.days * 60 * 60 * 24) < 10:
                     self.logger.info(f"{self.job_name}: {delay_sd=}")
                     interval -= delay_sd
                     sleep(delay_sd)
