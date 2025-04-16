@@ -1,4 +1,5 @@
 import json
+import traceback
 from contextlib import suppress
 from datetime import datetime, timezone
 from typing import Any
@@ -6,9 +7,9 @@ from typing import Any
 from aiogram import types
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.utils import formatting
-from litestar import Router, get, post
+from litestar import Response, Router, get, post
 from litestar.exceptions import HTTPException
-from litestar.status_codes import HTTP_200_OK
+from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT
 
 from app.common.config import cfg
 from app.common.utils import get_logger, levelDEBUG, levelINFO
@@ -24,8 +25,14 @@ async def webhook_telegram(data: dict[str, Any], headers: dict[str, str]) -> Any
         logger.error("Secrets don't match")
         raise HTTPException(status_code=401, detail="NOT VERIFIED")
     logger.debug(data)
-    telegram_update = types.Update(**data)
-    return await dp.feed_update(bot=bot, update=telegram_update)
+    try:
+        telegram_update = types.Update(**data)
+        await dp.feed_update(bot=bot, update=telegram_update)
+    except Exception as exc:
+        logger.error(exc)
+        logger.error(data)
+        traceback.print_exception(exc)
+    return Response(status_code=HTTP_204_NO_CONTENT, content=None)
 
 
 @post("/webhooks/notifications", status_code=HTTP_200_OK)

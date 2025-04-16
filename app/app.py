@@ -36,6 +36,7 @@ async def lifespan_function(app: Litestar) -> AsyncGenerator[None, None]:
     dp.include_router(telegram_router_admin)
     dp.include_router(telegram_router_anime)
     dp.message.middleware(AuthChatMiddleware())
+    dp.callback_query.middleware(AuthChatMiddleware())
     await bot.set_my_commands(COMMANDS_TG)
     await bot.set_my_description("mirakzen personal bot")
 

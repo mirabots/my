@@ -1,5 +1,6 @@
 from contextlib import suppress
 from datetime import datetime, time, timedelta, timezone
+from time import sleep
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.utils import formatting
@@ -15,6 +16,7 @@ from app.telegram.bot import bot
 class AnimeJob(JobBase):
     def get_interval(self) -> int:
         try:
+            interval = 60 * 60 * 24
             if cfg.ANIME_UPDATE_TYPE == "delay":
                 coeff = 1
                 if cfg.ANIME_UPDATE_DELAY_UNIT == "minutes":
@@ -23,7 +25,7 @@ class AnimeJob(JobBase):
                     coeff = 60 * 60
                 elif cfg.ANIME_UPDATE_DELAY_UNIT == "days":
                     coeff = 60 * 60 * 24
-                return cfg.ANIME_UPDATE_DELAY_VALUE * coeff
+                interval = cfg.ANIME_UPDATE_DELAY_VALUE * coeff
             elif cfg.ANIME_UPDATE_TYPE == "update_at":
                 update_at = time.fromisoformat(f"{cfg.ANIME_UPDATE_AT}:00")
 
@@ -36,7 +38,16 @@ class AnimeJob(JobBase):
                     update_at.minute,
                     tzinfo=timezone.utc,
                 )
-                return (planned_time - current_time).seconds
+                delay = planned_time - current_time
+                interval = delay.seconds
+                if 0 < (delay_sd := delay.seconds + delay.days * 60 * 60 * 24) < 10:
+                    self.logger.info(f"{self.job_name}: {delay_sd=}")
+                    interval -= delay_sd
+                    sleep(delay_sd)
+            self.logger.info(
+                f"{self.job_name}: new interval of {cfg.ANIME_UPDATE_TYPE} - {interval}"
+            )
+            return interval
         except Exception:
             self.logger.info(f"{self.job_name}: wrong interval params")
             return -1
@@ -106,6 +117,7 @@ class AnimeJob(JobBase):
                 await bot.send_message(
                     chat_id=cfg.OWNER_ID, text=message_text, entities=message_entities
                 )
+        self.logger.info(f"{self.job_name}: {all_anime} new info was loaded")
 
 
 anime_job = AnimeJob(job_name="Anime")
