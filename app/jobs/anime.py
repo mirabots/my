@@ -1,5 +1,6 @@
 from contextlib import suppress
 from datetime import datetime, time, timedelta, timezone
+from time import sleep
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.utils import formatting
@@ -37,7 +38,12 @@ class AnimeJob(JobBase):
                     update_at.minute,
                     tzinfo=timezone.utc,
                 )
-                interval = (planned_time - current_time).seconds
+                delay = planned_time - current_time
+                interval = delay.seconds
+                if delay_sd := delay.seconds + delay.days * 60 * 60 * 24 < 10:
+                    self.logger.info(f"{self.job_name}: {delay_sd=}")
+                    interval -= delay_sd
+                    sleep(delay_sd)
             self.logger.info(
                 f"{self.job_name}: new interval of {cfg.ANIME_UPDATE_TYPE} - {interval}"
             )
